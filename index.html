@@ -4,115 +4,82 @@
 <meta charset="UTF-8">
 <title>DarkShop | Premium Web Store</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- Tailwind -->
-<script src="https://cdn.tailwindcss.com"></script>
-
-<!-- Lucide Icons -->
-<script src="https://cdn.jsdelivr.net/npm/lucide@0.259.0/dist/lucide.min.js"></script>
-
-<style>
-body { background-color: #0d0d0d; color:white; font-family:'Poppins',sans-serif; }
-header.scrolled { background-color: rgba(13,13,13,0.95); backdrop-filter: blur(15px); transition:0.3s; }
-#cart-panel { position: fixed; top:0; right:0; width:320px; height:100vh; background:rgba(15,15,15,0.95); backdrop-filter:blur(15px); transform:translateX(100%); transition: transform 0.3s; z-index:1000; overflow-y:auto; }
-#cart-panel.active { transform:translateX(0); }
-#modal,#contact-modal { position:fixed; inset:0; background:rgba(0,0,0,0.8); display:flex; justify-center; align-items:center; opacity:0; visibility:hidden; transition:opacity 0.3s; z-index:1000;}
-#modal.active,#contact-modal.active { opacity:1; visibility:visible;}
-</style>
+<link href="css/tailwind.css" rel="stylesheet">
+<script type="module" src="js/app.js" defer></script>
 </head>
-<body class="bg-black text-white">
+<body class="bg-gray-900 text-gray-100 font-sans">
 
 <!-- Header -->
-<header id="site-header" class="flex justify-between items-center p-5 sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-lg">
-  <img id="logo-img" src="images/logo.png" alt="Logo" class="h-12 md:h-16 w-auto">
-  <div class="flex items-center gap-5">
-    <nav class="flex gap-6 text-gray-400 font-medium">
-      <a href="#product-list" class="hover:text-purple-500 transition">Shop</a>
-      <a href="#" id="contact-btn" class="hover:text-green-500 transition">Contact</a>
+<header class="flex justify-between items-center p-5 sticky top-0 bg-gray-900 bg-opacity-95 backdrop-blur-md z-50 shadow-md">
+    <div class="flex items-center space-x-3">
+        <img src="assets/logo.png" alt="Logo" class="h-10 w-auto">
+        <span class="text-2xl font-bold text-purple-500">DarkShop</span>
+    </div>
+    <nav class="flex items-center space-x-6">
+        <a href="#hero" class="hover:text-purple-500 transition">Home</a>
+        <a href="#products" class="hover:text-purple-500 transition">Shop</a>
+        <a href="#contact" class="hover:text-purple-500 transition">Contact</a>
+        <div id="notification" class="relative cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 hover:text-purple-500 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1h6z"/>
+            </svg>
+            <span id="notif-bubble" class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+        </div>
+        <div id="cart" class="bg-purple-500 px-3 py-1 rounded-full font-bold cursor-pointer">
+            Cart (<span id="cart-count">0</span>)
+        </div>
     </nav>
-    <button id="cart-btn" class="relative p-2 bg-purple-600 rounded-lg hover:scale-105 transition">
-      <i data-lucide="shopping-cart" class="w-6 h-6 text-white"></i>
-      <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 rounded-full w-5 h-5 flex items-center justify-center text-xs text-white">0</span>
-    </button>
-  </div>
 </header>
 
 <!-- Hero -->
-<section class="relative h-80 md:h-[500px] lg:h-[600px] w-full overflow-hidden">
-  <img src="images/hero.png" alt="Hero Image" class="w-full h-full object-cover">
-  <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+<section id="hero" class="relative h-[90vh] flex items-center justify-center bg-gray-900">
+    <img src="assets/hero.png" alt="Hero" class="absolute inset-0 w-full h-full object-cover opacity-70">
 </section>
 
-<!-- Admin Product Upload -->
-<section id="admin-panel" class="p-8 text-center hidden">
-  <input type="text" id="product-name" placeholder="Name" class="p-2 rounded-lg mb-2 w-1/3">
-  <input type="text" id="product-price" placeholder="Price" class="p-2 rounded-lg mb-2 w-1/3">
-  <input type="text" id="product-desc" placeholder="Description" class="p-2 rounded-lg mb-2 w-1/3">
-  <input type="file" id="product-image" accept="image/*" class="mb-4">
-  <button id="add-product-btn" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:scale-105 transition flex items-center gap-2">
-    <i data-lucide="plus-circle" class="w-5 h-5"></i> Add Product
-  </button>
-</section>
+<!-- Products -->
+<section id="products" class="py-16 px-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></section>
 
-<!-- Products Grid -->
-<section class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-10 p-10" id="product-list"></section>
-
-<!-- Product Modal -->
-<div id="modal">
-  <div class="bg-gray-900 bg-opacity-95 backdrop-blur-lg p-8 rounded-3xl shadow-2xl max-w-md w-full" id="modal-content"></div>
-</div>
-
-<!-- Contact WhatsApp Modal -->
-<div id="contact-modal">
-  <div class="bg-gray-900 bg-opacity-95 backdrop-blur-lg p-6 rounded-3xl shadow-2xl max-w-sm w-full flex flex-col items-center gap-4">
-    <img src="images/logo.png" alt="Avatar" class="h-20 w-20 rounded-full object-cover">
-    <h2 class="text-white text-xl font-bold">Contact Us</h2>
-    <a href="https://wa.me/your-number" target="_blank" class="flex items-center gap-2 bg-green-500 px-6 py-2 rounded-full hover:scale-105 transition">
-      <img src="images/whatsapp-logo.png" alt="WhatsApp" class="h-5 w-5">
-      <span class="text-white font-semibold">Message on WhatsApp</span>
-    </a>
-    <button onclick="closeContact()" class="text-gray-400 hover:text-white mt-2"><i data-lucide="x" class="w-6 h-6"></i></button>
-  </div>
-</div>
-
-<!-- Cart Panel -->
-<div id="cart-panel" class="shadow-2xl">
-  <div class="flex justify-between items-center p-4 border-b border-gray-800">
-    <h2 class="text-lg font-bold">Shopping Cart</h2>
-    <button onclick="closeCart()" class="text-gray-400 hover:text-white">
-      <i data-lucide="x" class="w-6 h-6"></i>
+<!-- Contact -->
+<section id="contact" class="py-16 px-10 flex justify-center items-center">
+    <button id="contact-btn" class="flex items-center space-x-2 bg-green-500 hover:bg-green-600 px-5 py-2 rounded-full shadow-md transition">
+        <img src="assets/whatsapp.png" alt="WhatsApp" class="h-6 w-6">
+        <span class="font-semibold text-white">Contact via WhatsApp</span>
     </button>
-  </div>
-  <div id="cart-items" class="p-4 flex flex-col gap-4"></div>
-  <div class="p-4 border-t border-gray-800 font-bold flex justify-between">
-    <span>Total:</span>
-    <span id="cart-total">$0.00</span>
-  </div>
-</div>
+</section>
 
 <!-- Footer -->
-<footer class="text-center p-10 border-t border-gray-800 text-gray-400">
-  © 2026 DarkShop. All rights reserved.
+<footer class="text-center py-12 border-t border-gray-700">
+    © 2026 DarkShop. All rights reserved.
 </footer>
 
-<script type="module" src="js/app.js"></script>
+<!-- Modals -->
+<div id="product-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div class="bg-gray-800 rounded-2xl max-w-lg w-full p-6 relative">
+        <button id="product-modal-close" class="absolute top-3 right-3 text-gray-400 hover:text-purple-500">&times;</button>
+        <div id="product-modal-content"></div>
+    </div>
+</div>
 
-<script>
-const header=document.getElementById('site-header');
-window.addEventListener('scroll',()=>{ window.scrollY>50?header.classList.add('scrolled'):header.classList.remove('scrolled'); });
+<div id="listing-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div class="bg-gray-800 rounded-2xl max-w-md w-full p-6 relative">
+        <button id="listing-modal-close" class="absolute top-3 right-3 text-gray-400 hover:text-purple-500">&times;</button>
+        <h2 class="text-xl font-bold mb-4">Submit Your Listing</h2>
+        <form id="listing-form" class="space-y-4">
+            <input type="text" name="name" placeholder="Product Name" class="w-full p-2 rounded-lg text-black">
+            <input type="number" name="price" placeholder="Price (USDT)" class="w-full p-2 rounded-lg text-black">
+            <textarea name="desc" placeholder="Description" class="w-full p-2 rounded-lg text-black"></textarea>
+            <input type="file" name="image" accept="image/*" class="w-full text-white">
+            <p class="text-gray-300">Payment required: 50 USDT to wallet <span class="font-mono">YOUR_WALLET_ADDRESS</span></p>
+            <input type="file" name="screenshot" accept="image/*" class="w-full text-white">
+            <div class="flex justify-between items-center">
+                <button type="submit" class="bg-purple-500 px-4 py-2 rounded-lg hover:bg-purple-600 transition">Submit Listing</button>
+                <button type="button" id="listing-contact-btn" class="bg-green-500 px-4 py-2 rounded-lg hover:bg-green-600 transition flex items-center space-x-2">
+                    <img src="assets/whatsapp.png" class="h-5 w-5"><span>Contact Support</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
-// Contact modal
-const contactBtn=document.getElementById("contact-btn");
-const contactModal=document.getElementById("contact-modal");
-function closeContact(){ contactModal.classList.remove("active"); }
-contactBtn.addEventListener("click",()=>{ contactModal.classList.add("active"); });
-
-// Lucide Icons replace
-if(window.lucide) lucide.replace();
-
-// Admin toggle (Updated password)
-const isAdmin=prompt("Enter admin password:") === "Shyfr 12$";
-if(isAdmin) document.getElementById("admin-panel").classList.remove("hidden");
-</script>
 </body>
 </html>
